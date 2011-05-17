@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>Site Spider Results</title>
+<style type="text/css">
+  body {
+    font-family: sans-serif
+  }
+  #resultsTable {
+    border-spacing: 1px;
+    margin: 15px;
+    width: 99%;
+    table-layout: fixed;
+  }
+  #resultsTable th {
+    text-align: left;
+    background-color: #d0d0d0;
+  }
+  #resultsTable td, #resultsTable th {
+    font-size: 9pt;
+    padding: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #resultsTable td.x0 {
+    color: #c00;
+  }
+  #resultsTable td.x5 {
+    color: #c00;
+  }
+  #resultsTable td.x4 {
+    color: #c00;
+  }
+  #resultsTable td.x3 {
+    color: #cc0;
+  }
+  #resultsTable tr:hover {
+    background: #ffa;
+  }
+  #startingOn, #restrictTo {
+    font-family: monospace;
+  }
+</style>
+</head>
+<body>
+<img src="icon128.png" align="right">
+<h1>Site Spider Results</h1>
+
+<table>
+  <tr>
+    <td>Starting on:</td>
+    <td id="startingOn"></td>
+  </tr>
+  <tr>
+    <td>Restrict to:</td>
+    <td id="restrictTo"></td>
+  </tr>
+  <tr>
+    <td>Status:</td>
+    <td id="status">Initializing...</td>
+  </tr>
+</table>
+
+<script src="tablesort.js"></script>
+
+<script>
+  TableSort.arrowNone = ' <img height=10 width=10 src="blank.gif" alt="">';
+  TableSort.arrowUp   = ' <img height=10 width=10 src="arrow-up.gif" alt="&uarr;">';
+  TableSort.arrowDown = ' <img height=10 width=10 src="arrow-down.gif" alt="&darr;">';
+</script>
+
+<table id="resultsTable">
+  <colgroup>
+    <col>
+    <col style="width: 16ex">
+    <col style="width: 16ex">
+    <col style="width: 20%">
+  </colgroup>
+  <thead>
+    <tr>
+      <th class="nocase">URL</th>
+      <th class="num">Status</th>
+      <th class="nocase">Mime</th>
+      <th class="nocase">First Referrer</th>
+    </tr>
+  </thead>
+  <tbody id="resultbody">
+  </tbody>
+</table>
+</body>
+</html>

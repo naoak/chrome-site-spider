@@ -43,6 +43,7 @@ var spiderTab = null;
 var resultsTab = null;
 var httpRequest = null;
 var httpRequestWatchDogPid = 0;
+var newTabWatchDogPid = 0;
 
 /**
  * Save a reference to the popup's document object,
@@ -178,12 +179,13 @@ function popupGo() {
  * Set the innerHTML of a named element with a message.  Escape the message.
  * @param {Document} doc Document containing the element.
  * @param {string} id ID of element to change.
- * @param {string} msg Message to set.
+ * @param {*} msg Message to set.
  */
 function setInnerSafely(doc, id, msg) {
   if (doc) {
     var el = doc.getElementById(id);
     if (el) {
+      msg = msg.toString();
       msg = msg.replace(/&/g, '&amp;');
       msg = msg.replace(/</g, '&lt;');
       msg = msg.replace(/>/g, '&gt;');
@@ -200,6 +202,7 @@ function popupStop() {
   spiderTab = null;
   resultsTab = null;
   window.clearTimeout(httpRequestWatchDogPid);
+  window.clearTimeout(newTabWatchDogPid);
   // Reenable the Go button.
   popupDoc.getElementById('go').disabled = false;
 }
@@ -208,6 +211,7 @@ function popupStop() {
  * Start spidering one page.
  */
 function spiderPage() {
+  setStatus('Next page...');
   if (!resultsTab) {
     // Results tab was closed.
     return;
@@ -243,7 +247,7 @@ function spiderPage() {
 }
 
 /**
- * Terminate an http request that hangs (happens when HTTP auth is used).
+ * Terminate an http request that hangs.
  */
 function httpRequestWatchDog() {
   setStatus('Aborting HTTP Request');
@@ -252,6 +256,20 @@ function httpRequestWatchDog() {
     // Record page details.
     recordPage(httpRequest.url, null, '[???]', httpRequest.referrer);
     httpRequest = null;
+  }
+  window.setTimeout(spiderPage, 1);
+}
+
+/**
+ * Terminate a new tab that hangs (happens when a binary file downloads).
+ */
+function newTabWatchDog() {
+  setStatus('Aborting New Tab');
+  if (spiderTab) {
+    chrome.tabs.remove(spiderTab.id);
+    spiderTab = null;
+    // This page will already have been logged, all we are missing is futher
+    // spidering opportunities.
   }
   window.setTimeout(spiderPage, 1);
 }
@@ -281,9 +299,11 @@ function httpRequestChange() {
       ((code >= 300 && code < 400) ||
       (code < 300 && SPIDER_MIME.indexOf(mime) != -1))) {
     setStatus('Fetching ' + url);
+    newTabWatchDogPid = window.setTimeout(newTabWatchDog,
+                                          HTTP_REQUEST_TIMEOUT);
     chrome.tabs.create({url: url, selected: false}, spiderLoadCallback_);
   } else {
-    setStatus('Next page...');
+    setStatus('Queueing page [1]...');
     window.setTimeout(spiderPage, 1);
   }
 }
@@ -322,7 +342,7 @@ function spiderInjectCallback(links, inline) {
   for (var x = 0; x < links.length; x++) {
     var link = links[x];
     link = trimAfter(link, '#');  // Trim off any hash.
-    if (!(link in pagesDone) && !(link in pagesTodo)) {
+    if (link && !(link in pagesDone) && !(link in pagesTodo)) {
       if (allowArguments || link.indexOf('?') == -1) {
         if (link.match(allowedRegex) ||
             (allowPlusOne && url.match(allowedRegex))) {
@@ -338,7 +358,8 @@ function spiderInjectCallback(links, inline) {
   pagesDone[url] = true;
   chrome.tabs.remove(spiderTab.id);
   spiderTab = null;
-  setStatus('Next page...');
+  window.clearTimeout(newTabWatchDogPid);
+  setStatus('Queueing page [2]...');
 
   // Move on to the next page.
   window.setTimeout(spiderPage, 1);
@@ -432,10 +453,16 @@ var rfc2616 = {
 
 /**
  * Set the current status message to the results tab.
+ * Also print count of number of items left in queue.
  * @param {string} msg Status message.
  */
 function setStatus(msg) {
   var resultsDoc = getResultsDoc();
+  var i = 0;
+  for (page in pagesTodo) {
+    i++;
+  }
+  setInnerSafely(resultsDoc, 'queue', i);
   setInnerSafely(resultsDoc, 'status', msg);
 }
 

@@ -382,15 +382,14 @@ function recordPage(url, code, mime, referrer) {
   }
 
   var codeclass = '';
-  if (!code) {
-    codeclass = 'x0';
-  } else {
+  if (code) {
     codeclass = 'x' + Math.floor(code / 100);
-  }
-  if (!code) {
+    if (code in rfc2616) {
+      code += ' ' + rfc2616[code];
+    }
+  } else {
+    codeclass = 'x0';
     code = 'Unable to load';
-  } else if (code in rfc2616) {
-    code += ' ' + rfc2616[code];
   }
 
   var resultsDoc = getResultsDoc();
@@ -458,11 +457,7 @@ var rfc2616 = {
  */
 function setStatus(msg) {
   var resultsDoc = getResultsDoc();
-  var i = 0;
-  for (page in pagesTodo) {
-    i++;
-  }
-  setInnerSafely(resultsDoc, 'queue', i);
+  setInnerSafely(resultsDoc, 'queue', Object.keys(pagesTodo).length);
   setInnerSafely(resultsDoc, 'status', msg);
 }
 

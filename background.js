@@ -293,11 +293,21 @@ function httpRequestChange() {
   // Record page details.
   recordPage(url, code, mime, referrer);
 
+  // 'SPIDER_MIME' is a list of allowed mime types.
+  // 'mime' could be in the form of "text/html; charset=utf-8"
+  // For each allowed mime type, check for its presence in 'mime'.
+  var mimeOk = false;
+  for (var x = 0; x < SPIDER_MIME.length; x++) {
+    if (mime.indexOf(SPIDER_MIME[x]) != -1) {
+      mimeOk = true;
+      break;
+    }
+  }
+
   // If this is a redirect or an HTML page, open it in a new tab and
   // look for links to follow.  Otherwise, move on to next page.
   if (url.match(allowedRegex) &&
-      ((code >= 300 && code < 400) ||
-      (code < 300 && SPIDER_MIME.indexOf(mime) != -1))) {
+      ((code >= 300 && code < 400) || (code < 300 && mimeOk))) {
     setStatus('Fetching ' + url);
     newTabWatchDogPid = window.setTimeout(newTabWatchDog,
                                           HTTP_REQUEST_TIMEOUT);

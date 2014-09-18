@@ -1,18 +1,28 @@
 {
   "name": "Site Spider",
-  "version": "1.2",
-  "background_page": "background.html",
+  "version": "1.2.1",
+  "manifest_version": 2,
+  "background": {
+    "scripts": ["background.js"]
+  },
   "permissions": [
-    "tabs", "http://*/*", "https://*/*"
+    "tabs",
+    "http://*/*",
+    "https://*/*"
   ],
   "browser_action": {
     "name": "Spider a website",
     "default_icon": "icon16.png",
-    "popup": "popup.html"
+    "default_popup": "popup.html"
   },
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
-  }
+  },
+  "web_accessible_resources": [
+    "arrow-down.gif",
+    "arrow-up.gif",
+    "blank.gif"
+  ]
 }

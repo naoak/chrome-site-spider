@@ -243,7 +243,7 @@ function spiderPage() {
   httpRequest.referrer = referrer; // Create new 'referrer' property.
   // For some reason this request only works intermitently when called directly.
   // Delay request by 1ms.
-  window.setTimeout('httpRequest.send(null)', 1);
+  window.setTimeout(function() { httpRequest.send(null); }, 1);
 }
 
 /**

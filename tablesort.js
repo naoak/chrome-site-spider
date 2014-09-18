@@ -29,9 +29,9 @@ var TableSort = {};
 TableSort.enabled = true;
 
 // Default text values for the arrows.  Override these with custom image tags.
-TableSort.arrowNone = ' &nbsp;';
-TableSort.arrowUp   = ' &uarr;';
-TableSort.arrowDown = ' &darr;';
+TableSort.arrowNone = ' <img height=10 width=10 src="blank.gif" alt="">';
+TableSort.arrowUp   = ' <img height=10 width=10 src="arrow-up.gif" alt="&uarr;">';
+TableSort.arrowDown = ' <img height=10 width=10 src="arrow-down.gif" alt="&darr;">';
 
 // Tooltip to display when mousing over a sorting link.
 TableSort.titleText = 'Sort by this column';
